@@ -1,70 +1,5 @@
-// Parcial Programacion Orientada a Objetos
-/*
-    Una agencia requiere un sistema de alquiler de vehículos. Los vehículos a alquilar pueden ser autos, motos y camionetas.
-    El sistema debe gestionar el alquiler de los vehículos administrados por la agencia.
-    Los vehículos se registran con matrícula, marca, modelo, y control de disponibilidad.
-    El alquiler se registra asociando un cliente, un vehículo y un rango de fechas.
-    Métodos para verificar disponibilidad, realizar alquileres y listar vehículos y alquileres.
-
-    Sugerencias:
-    Clase Alquiler representa la asociación entre un cliente, un vehículo alquilado, y las fechas de inicio y fin.
-    Clase Agencia con una colección de vehículos y alquileres.
-*/
-
-class Vehiculo {
-    constructor(matricula, marca, modelo) {
-        this.matricula = matricula;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.disponible = true;
-    }
-
-    estaDisponible() {
-        return this.disponible;
-    }
-
-    marcarComoAlquilado() {
-        this.disponible = false;
-    }
-
-    marcarComoDisponible() {
-        this.disponible = true;
-    }
-
-    descripcion() {
-        return `${this.constructor.name}: ${this.marca} ${this.modelo} - Matrícula: ${this.matricula}`;
-    }
-}
-
-class Auto extends Vehiculo {}
-class Moto extends Vehiculo {}
-class Camioneta extends Vehiculo {}
-
-class Cliente {
-    constructor(nombre, apellido, documento) {
-        if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
-            throw new Error('El nombre solo debe contener letras.');
-        }
-        if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido)) {
-            throw new Error('El apellido solo debe contener letras.');
-        }
-        if(!/^\d{7,8}$/.test(documento)) {
-            throw new Error('El documento debe contener entre 7 y 8 dígitos numéricos.');
-        }
-
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.documento = documento;
-    }
-}
-
-class Alquiler {
-    constructor(cliente, vehiculo, rangoFechas) {
-        this.cliente = cliente;
-        this.vehiculo = vehiculo;
-        this.rangoFechas = rangoFechas;
-    }
-}
+import Vehiculo from './Vehiculo.js';
+import Alquiler from './Alquiler.js';
 
 class Agencia {
     #vehiculos;
@@ -165,22 +100,4 @@ class Agencia {
     }
 }
 
-const agencia = new Agencia();
-const auto1 = new Auto('ABC123', 'Audi', 'TT');
-const moto1 = new Moto('XYZ987', 'Yamaha', 'FZ');
-const camioneta1 = new Camioneta('JKL456', 'Ford', 'Ranger');
-
-agencia.registrarVehiculo(auto1);
-agencia.registrarVehiculo(moto1);
-agencia.registrarVehiculo(camioneta1);
-
-const cliente1 = new Cliente('Viviana', 'Valera', '94443654');
-
-agencia.realizarAlquiler(cliente1, 'ABC123', '2025-05-10', '2025-05-31');
-
-console.log(`🔑 Alquileres realizados:`);
-console.log(JSON.stringify(agencia.listarAlquileres(), null, 2));
-console.log(`🚗 Vehículos registrados:`);
-agencia.listarVehiculos().forEach((v) => {
-    console.log(`${v.descripcion()} - Disponible: ${v.estaDisponible() ? 'Sí' : 'No'}`);
-});
+export default Agencia;
