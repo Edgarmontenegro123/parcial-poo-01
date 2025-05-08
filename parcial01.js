@@ -18,9 +18,7 @@ class Vehiculo {
         this.modelo = modelo;
         this.disponible = true;
     }
-}
 
-class Auto extends Vehiculo {
     estaDisponible() {
         return this.disponible;
     }
@@ -32,15 +30,15 @@ class Auto extends Vehiculo {
     marcarComoDisponible() {
         this.disponible = true;
     }
+
+    descripcion() {
+        return `${this.constructor.name}: ${this.marca} ${this.modelo} - Matrícula: ${this.matricula}`;
+    }
 }
 
-class Moto extends Vehiculo {
-
-}
-
-class Camioneta extends Vehiculo {
-
-}
+class Auto extends Vehiculo {}
+class Moto extends Vehiculo {}
+class Camioneta extends Vehiculo {}
 
 class Cliente {
     constructor(nombre, apellido, documento) {
@@ -71,7 +69,7 @@ class Agencia {
             this.#vehiculos.push(vehiculo);
         }
         else {
-            throw new Error(`El vehiculo ${vehiculo} tiene como status alquiler registrado`);
+            throw new Error(`El vehiculo ${vehiculo} tiene como status alquiler registrado.`);
         }
     }
 
@@ -80,7 +78,7 @@ class Agencia {
             return this.#vehiculos;
         }
         else {
-            throw new Error(`La lista de vehiculos se encuentra vacía`);
+            throw new Error(`La lista de vehiculos se encuentra vacía.`);
         }
     }
 
@@ -92,11 +90,73 @@ class Agencia {
         return vehiculo.estaDisponible();
     }
 
-    realizarAlquiler() {
+    realizarAlquiler(cliente, matricula, fechaInicio, fechaFin) {
+        const vehiculo = this.#vehiculos.find(v => v.matricula === matricula);
 
+        if(!vehiculo) {
+            throw new Error(`El vehículo con matrícula ${matricula} no se ha encontrado.`);
+        }
+        if(!vehiculo.estaDisponible()) {
+            throw new Error(`El vehículo con matrícula ${matricula} no se encuentra disponible.`);
+        }
+
+        const rangoFechas = {
+            inicio: fechaInicio,
+            fin: fechaFin,
+        }
+        const nuevoAlquiler = new Alquiler(cliente, vehiculo, rangoFechas);
+
+        vehiculo.marcarComoAlquilado();
+
+        this.#alquileres.push(nuevoAlquiler);
     }
 
     listarAlquileres() {
+        if(this.#alquileres.length === 0) {
+            throw new Error(`La lista de alquileres se encuentra vacía.`);
+        }
 
+        return this.#alquileres.map((alquiler, index) => ({
+            numero: index + 1,
+            cliente: {
+                nombre: alquiler.cliente.nombre,
+                apellido: alquiler.cliente.apellido,
+                documento: alquiler.cliente.documento,
+            },
+            vehiculo: {
+                matricula: alquiler.vehiculo.matricula,
+                marca: alquiler.vehiculo.marca,
+                modelo: alquiler.vehiculo.modelo,
+            },
+            fechas: alquiler.rangoFechas,
+        }));
+    }
+
+    devolverVehiculo(matricula) {
+        const vehiculo = this.#vehiculos.find(v => v.matricula === matricula);
+        if(!vehiculo) {
+            throw new Error(`No se encontró el vehículo con matrícula ${matricula}`);
+        }
+        vehiculo.marcarComoDisponible()
     }
 }
+
+const agencia = new Agencia();
+const auto1 = new Auto('ABC123', 'Audi', 'TT');
+const moto1 = new Moto('XYZ987', 'Yamaha', 'FZ');
+const camioneta1 = new Camioneta('JKL456', 'Ford', 'Ranger');
+
+agencia.registrarVehiculo(auto1);
+agencia.registrarVehiculo(moto1);
+agencia.registrarVehiculo(camioneta1);
+
+const cliente1 = new Cliente('Viviana', 'Valera', '94443654');
+
+agencia.realizarAlquiler(cliente1, 'ABC123', '10-05-2025', '31-05-2025');
+
+console.log(`🔑 Alquileres realizados:`);
+console.log(JSON.stringify(agencia.listarAlquileres(), null, 2));
+console.log(`🚗 Vehículos registrados:`);
+agencia.listarVehiculos().forEach((v) => {
+    console.log(`${v.descripcion()} - Disponible: ${v.estaDisponible() ? 'Sí' : 'No'}`);
+});
