@@ -100,7 +100,7 @@ class Agencia {
         return vehiculo.estaDisponible();
     }
 
-    realizarAlquiler(cliente, matricula, fechaInicio, fechaFin) {
+    realizarAlquiler(cliente, matricula, fechaInicioStr, fechaFinStr) {
         const vehiculo = this.#vehiculos.find(v => v.matricula === matricula);
 
         if(!vehiculo) {
@@ -108,6 +108,17 @@ class Agencia {
         }
         if(!vehiculo.estaDisponible()) {
             throw new Error(`El vehículo con matrícula ${matricula} no se encuentra disponible.`);
+        }
+
+        const fechaInicio = new Date(fechaInicioStr);
+        const fechaFin = new Date(fechaFinStr);
+
+        if(isNaN(fechaInicio.getTime()) || isNaN(fechaFin.getTime())){
+            throw new Error(`Una o ambas fechas no se encuentran en un formato válido. YYYY-MM-DD.`);
+        }
+
+        if(fechaInicio >= fechaFin) {
+            throw new Error(`La fecha de inicio debe de ser anterior a la fecha de finalización.`);
         }
 
         const rangoFechas = {
@@ -138,7 +149,10 @@ class Agencia {
                 marca: alquiler.vehiculo.marca,
                 modelo: alquiler.vehiculo.modelo,
             },
-            fechas: alquiler.rangoFechas,
+            fechas: {
+                inicio: alquiler.rangoFechas.inicio.toLocaleDateString('es-ES', {day: 'numeric', month: 'long', year: 'numeric'}),
+                fin: alquiler.rangoFechas.fin.toLocaleDateString('es-ES', {day: 'numeric', month: 'long', year: 'numeric'}),
+            }
         }));
     }
 
@@ -162,7 +176,7 @@ agencia.registrarVehiculo(camioneta1);
 
 const cliente1 = new Cliente('Viviana', 'Valera', '94443654');
 
-agencia.realizarAlquiler(cliente1, 'ABC123', '10-05-2025', '31-05-2025');
+agencia.realizarAlquiler(cliente1, 'ABC123', '2025-05-10', '2025-05-31');
 
 console.log(`🔑 Alquileres realizados:`);
 console.log(JSON.stringify(agencia.listarAlquileres(), null, 2));
