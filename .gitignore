@@ -1,0 +1,8 @@
+/Typescript/*.js
+/Typescript/*.js.map
+node_modules/
+package-lock.json
+
+# Archivos y carpetas de JetBrains IDEs
+.idea/
+*.iml
